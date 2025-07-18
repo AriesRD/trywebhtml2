@@ -117,7 +117,7 @@
       document.getElementById("outputBox").textContent = "⏳ 標題擷取中...";
 
       const title = await fetchTitle(url);
-      const fullText = `${title} ${url}`;
+      const fullText = `${title}\n${url}`;
 
       // 轉短網址
       try {
