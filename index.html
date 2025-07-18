@@ -78,14 +78,20 @@
       const input = document.getElementById("urlInput");
       input.value = "";
       document.getElementById("result").innerText = "";
-      input.focus(); // 自動將游標移到輸入框
+      input.focus(); // 清空後自動將游標移到輸入框
     }
 
     async function generateTitleAndUrl() {
-      const url = document.getElementById("urlInput").value.trim();
+      const input = document.getElementById("urlInput");
+      let url = input.value.trim();
       if (!url) {
         alert("請輸入網址！");
         return;
+      }
+
+      // 特殊處理 Shen Yun：只取前 85 碼
+      if (url.startsWith("https://www.shenyuncreations.com/")) {
+        url = url.slice(0, 85);
       }
 
       const fullUrl = url + "?openExternalBrowser=1";
@@ -97,7 +103,7 @@
           const videoId = videoIdMatch ? videoIdMatch[1] : null;
 
           if (videoId) {
-            const apiKey = "AIzaSyChGTvGmSLbDmE1WYi9Ru-ZW0GzbZComKQ"; // ←←← 請在這裡填入你的 YouTube API 金鑰
+            const apiKey = "YOUR_YOUTUBE_API_KEY"; // ←←← 請在此輸入 YouTube API 金鑰
             const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`;
             const response = await fetch(apiUrl);
             const data = await response.json();
@@ -105,11 +111,24 @@
           } else {
             title = "YouTube網址格式錯誤";
           }
+
         } else {
-          const response = await fetch("https://corsproxy.io/?" + encodeURIComponent(url));
+          const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(url);
+          const response = await fetch(proxyUrl);
           const text = await response.text();
-          const match = text.match(/<title[^>]*>(.*?)<\/title>/i);
-          title = match ? match[1].trim() : "無法取得標題";
+
+          if (url.includes("miaoli.gov.tw")) {
+            const match = text.match(/<meta[^>]+name=["']title["'][^>]*content=["'](.*?)["']/i);
+            title = match ? match[1].trim() : "苗栗網頁標題取得失敗";
+
+          } else if (url.includes("accupass.com")) {
+            const match = text.match(/<meta[^>]+property=["']og:title["'][^>]*content=["'](.*?)["']/i);
+            title = match ? match[1].trim() : "Accupass標題取得失敗";
+
+          } else {
+            const match = text.match(/<title[^>]*>(.*?)<\/title>/i);
+            title = match ? match[1].trim() : "無法取得標題";
+          }
         }
 
         const result = `${title}\n${fullUrl}`;
