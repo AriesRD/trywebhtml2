@@ -117,7 +117,7 @@
       document.getElementById("outputBox").textContent = "⏳ 標題擷取中...";
 
       const title = await fetchTitle(url);
-      const fullText = `${title}\n${url}`;
+      const fullText = `${title} ${url}`;
 
       // 轉短網址
       try {
@@ -131,7 +131,7 @@
         });
         const data = await res.json();
         const shortUrl = data.short_url || url;
-        const resultText = `${title} ${shortUrl}`;
+        const resultText = `${title}\n${shortUrl}`; // 讓網址換行呈現
         document.getElementById("outputBox").textContent = resultText;
       } catch (e) {
         document.getElementById("outputBox").textContent = fullText + "（縮網址失敗）";
